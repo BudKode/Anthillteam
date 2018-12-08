@@ -224,6 +224,3 @@ class TSPSolver:
 		results['pruned'] = None
 		return results
 		
-
-
-

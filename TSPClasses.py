@@ -25,7 +25,7 @@ class Colony:
 
 	def release_ants( self ):
 		for i in range(self.num_ants):
-			self.ants.append(Ant(self.start_city_index, self.cities, self.start_city_index, self.decent_route_average, self.optimal_route_pherimone_count))
+			self.ants.append(Ant(self.start_city, self.cities, self.decent_route_average, self.optimal_route_pherimone_count, self.pherimone_map))
 		iterrations = 0
 		while self.ants:
 			if iterrations > 4 * len(self.pherimone_map):
@@ -38,22 +38,46 @@ class Colony:
 		return
 
 class Ant:
-	def __init__( self, city, cities_to_visit, city_index, route_average, optimal_pherimone_count ):
+	def __init__( self, city, cities_to_visit, route_average, optimal_pherimone_count, pherimone_map ):
 		self.route = []
+		self.pherimone_map = pherimone_map
 		self.cities_to_visit = list(cities_to_visit)
 		self.current_city = city
-		self.city_index = city_index
 		self.route_average = route_average
 		self.report_optimal_count = optimal_pherimone_count
 		self.action = self.pick_route
 
 	def pick_route( self ):
+		total_pherimone_chance = 0
+		for value in self.pherimone_map[self.current_city._index]:
+			total_pherimone_chance += value
+
+		random_num = random.randint(0, total_pherimone_chance)
+
+		chosen_route_index = 0
+		for index in range(self.pherimone_map[self.current_city._index]):
+			random_num -= self.pherimone_map[self.current_city._index][index]
+
+			if (random_num <= 0):
+				chosen_route_index = index
+				break
+
+		self.route.append(self.current_city)
+
 		if not self.cities_to_visit:
+			# The ant has found a full circuit
 			self.action = self.check_solution
-		pass
+		else:
+			# There is still a city to find
+			for city in self.cities_to_visit:
+				if city._index == chosen_route_index:
+					self.current_city = city
+					self.cities_to_visit.remove(city)
+					break
 
 	def check_solution( self ):
 		#TODO: check the solution
+		
 
 		self.action = self.calculate_pherimone
 		pass
