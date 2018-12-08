@@ -191,7 +191,38 @@ class TSPSolver:
 	'''
 		
 	def fancy( self,time_allowance=60.0 ):
-		pass
+		results = {}
+		cities = self._scenario.getCities()
+		ncities = len(cities)
+		foundTour = False
+		count = 0
+		bssf = None
+		start_time = time.time()
+
+		starting_city = cities[0]
+		#Initialize pherimone map: Time - O(n^2), Space - O(n^2)
+		pherimone_map = []
+		for city in cities:
+			city_edges = []
+			for to_city in cities:
+				city_edges.append(Edge(city.costTo(to_city), 3))
+			pherimone_map.append(city_edges)
+		
+		#Initialize the colony: Time - O(k), Space O(k)
+		colony = Colony(4, pherimone_map, starting_city, 0)
+
+		while not colony.final_tour and time.time()-start_time < time_allowance:
+			colony.release_ants()
+
+		end_time = time.time()
+		results['cost'] = bssf.cost if foundTour else math.inf
+		results['time'] = end_time - start_time
+		results['count'] = count
+		results['soln'] = bssf
+		results['max'] = None
+		results['total'] = None
+		results['pruned'] = None
+		return results
 		
 
 

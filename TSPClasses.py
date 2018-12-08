@@ -6,6 +6,68 @@ import numpy as np
 import random
 import time
 
+
+#---------------------------- AntHill Classes --------------------------------------
+
+class Colony:
+	def __init__(  self, num_ants, pherimone_map, start_city, start_city_index ):
+		self.ants = []
+		self.max_pherimone_per_ant = 3
+		self.pherimone_map = pherimone_map
+		self.start_city_index = start_city_index
+		#Play with this. This is what we give each ant to compare with to see if their route is worth marking
+		self.decent_route_average = len(self.pherimone_map) * 100
+		#Play with this. This is what we give each ant as a flag for the optimal route to quit iterations and return a final solution
+		self.optimal_route_pherimone_count = (num_ants / 2) * self.max_pherimone_per_ant 
+		self.final_tour = []
+
+	def release_ants( self ):
+		for i in range(num_ants):
+			self.ants.append(Ant(start_city, start_city_index, self.decent_route_average, self.optimal_route_pherimone_count))
+		iterrations = 0
+		while self.ants:
+			if iterrations > 2 * len(self.pherimone_map):
+				print("Error! Too many ant iterrations!")
+				self.ants = []
+				break
+			iterrations += 1
+			for ant in self.ants:
+				ant.do_action()
+		return
+
+class Ant:
+	def __init__( self, city, city_index, route_average, optimal_pherimone_count ):
+		self.route = []
+		self.current_city = city
+		self.city_index = city_index
+		self.route_average = route_average
+		self.report_optimal_count = optimal_pherimone_count
+		self.action = "pick_route"
+
+	def pick_route( self ):
+		pass
+
+	def check_solution( self ):
+		pass
+
+	def calculate_pherimone( self ):
+		pass
+
+	def backtrack( self ):
+		pass
+
+	def drop_pherimone( self ):
+		pass
+
+class Edge:
+	def __init__( self, path_length, path_weight ):
+		self.path_length = path_length
+		self.path_weight = path_weight
+
+
+#---------------------------- End AntHill Classes --------------------------------------
+
+#---------------------------- Branch and Bound Classes --------------------------------------
 class Node:
 	def __init__( self, city, city_index, route, parent_matrix, parent_bound):
 		self.city = city
@@ -124,7 +186,7 @@ class HeapQueue:
             return True
         return False
 
-		
+#---------------------------- End Branch and Bound Classes --------------------------------------
 
 class TSPSolution:
 	def __init__( self, listOfCities):
