@@ -192,7 +192,7 @@ class TSPSolver:
 		
 	def fancy( self,time_allowance=60.0 ):
 		results = {}
-		cities = self._scenario.getCities()
+		cities = list(self._scenario.getCities())
 		ncities = len(cities)
 		foundTour = False
 		count = 0
@@ -209,7 +209,7 @@ class TSPSolver:
 			pherimone_map.append(city_edges)
 		
 		#Initialize the colony: Time - O(k), Space O(k)
-		colony = Colony(4, pherimone_map, starting_city, 0)
+		colony = Colony(cities, pherimone_map, starting_city)
 
 		while not colony.final_tour and time.time()-start_time < time_allowance:
 			colony.release_ants()

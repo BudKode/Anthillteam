@@ -10,20 +10,22 @@ import time
 #---------------------------- AntHill Classes --------------------------------------
 
 class Colony:
-	def __init__(  self, num_ants, pherimone_map, start_city, start_city_index ):
+	def __init__(  self, cities, pherimone_map, start_city ):
+		self.num_ants = 4
+		self.cities = cities
 		self.ants = []
 		self.max_pherimone_per_ant = 3
 		self.pherimone_map = pherimone_map
-		self.start_city_index = start_city_index
+		self.start_city_index = start_city._index
 		#Play with this. This is what we give each ant to compare with to see if their route is worth marking
 		self.decent_route_average = len(self.pherimone_map) * 100
 		#Play with this. This is what we give each ant as a flag for the optimal route to quit iterations and return a final solution
-		self.optimal_route_pherimone_count = (num_ants / 2) * self.max_pherimone_per_ant 
+		self.optimal_route_pherimone_count = (self.num_ants / 2) * self.max_pherimone_per_ant 
 		self.final_tour = []
 
 	def release_ants( self ):
-		for i in range(num_ants):
-			self.ants.append(Ant(start_city, start_city_index, self.decent_route_average, self.optimal_route_pherimone_count))
+		for i in range(self.num_ants):
+			self.ants.append(Ant(self.start_city_index, self.cities, self.start_city_index, self.decent_route_average, self.optimal_route_pherimone_count))
 		iterrations = 0
 		while self.ants:
 			if iterrations > 2 * len(self.pherimone_map):
@@ -32,31 +34,50 @@ class Colony:
 				break
 			iterrations += 1
 			for ant in self.ants:
-				ant.do_action()
+				ant.action()
 		return
 
 class Ant:
-	def __init__( self, city, city_index, route_average, optimal_pherimone_count ):
+	def __init__( self, city, cities_to_visit, city_index, route_average, optimal_pherimone_count ):
 		self.route = []
+		self.cities_to_visit = list(cities_to_visit)
 		self.current_city = city
 		self.city_index = city_index
 		self.route_average = route_average
 		self.report_optimal_count = optimal_pherimone_count
-		self.action = "pick_route"
+		self.action = self.pick_route
 
 	def pick_route( self ):
+		if not self.cities_to_visit:
+			self.action = self.check_solution
 		pass
 
 	def check_solution( self ):
+		#TODO: check the solution
+
+		self.action = self.calculate_pherimone
 		pass
 
 	def calculate_pherimone( self ):
+
+		self.action = self.backtrack
 		pass
 
 	def backtrack( self ):
+		for city in self.route:
+			self.action = self.drop_pherimone
+
+		if not self.route:
+			self.action = self.finish
 		pass
 
 	def drop_pherimone( self ):
+		#TODO: update the pherimone map
+		#TODO: remove the current city from our route
+		pass
+
+	def finish( self ):
+		#TODO: signal to delete ant
 		pass
 
 class Edge:
