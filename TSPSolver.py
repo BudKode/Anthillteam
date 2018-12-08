@@ -211,8 +211,11 @@ class TSPSolver:
 		#Initialize the colony: Time - O(k), Space O(k)
 		colony = Colony(cities, pherimone_map, starting_city)
 
-		while not colony.final_tour and time.time()-start_time < time_allowance:
+		num_of_iterations = 500
+		while num_of_iterations > 0 and time.time()-start_time < time_allowance:
 			colony.release_ants()
+			colony.findBSSF()
+			num_of_iterations -= 1
 
 		end_time = time.time()
 		results['cost'] = bssf.cost if foundTour else math.inf

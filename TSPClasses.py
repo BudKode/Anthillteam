@@ -11,31 +11,44 @@ import time
 
 class Colony:
 	def __init__(  self, cities, pherimone_map, start_city ):
-		self.num_ants = 4
+		self.num_ants = 10
 		self.cities = cities
 		self.ants = []
 		self.max_pherimone_per_ant = 3
 		self.pherimone_map = pherimone_map
-		self.start_city_index = start_city._index
+		self.start_city = start_city
 		#Play with this. This is what we give each ant to compare with to see if their route is worth marking
 		self.decent_route_average = len(self.pherimone_map) * 100
 		#Play with this. This is what we give each ant as a flag for the optimal route to quit iterations and return a final solution
 		self.optimal_route_pherimone_count = (self.num_ants / 2) * self.max_pherimone_per_ant 
 		self.final_tour = []
+		self.bssf = None
 
 	def release_ants( self ):
+		ants = []
 		for i in range(self.num_ants):
-			self.ants.append(Ant(self.start_city, self.cities, self.decent_route_average, self.optimal_route_pherimone_count, self.pherimone_map))
+			ants.append(Ant(self.start_city, self.cities, self.decent_route_average, self.optimal_route_pherimone_count, self.pherimone_map))
 		iterrations = 0
-		while self.ants:
-			if iterrations > 4 * len(self.pherimone_map):
-				print("Error! Too many ant iterrations!")
-				self.ants = []
-				break
-			iterrations += 1
-			for ant in self.ants:
-				ant.action()
+		while ants:
+			# if iterrations > 4 * len(self.pherimone_map):
+			# 	print("Error! Too many ant iterrations!")
+			# 	self.ants = []
+			# 	break
+			# iterrations += 1
+			for ant in ants:
+				if (ant.action != ant.finish):
+					ant.action()
+				else:
+					ants.remove(ant)
+					self.ants.append(ant)
 		return
+
+	def findBSSF(self):
+		for ant in self.ants:
+			if (self.bssf == None or self.bssf.cost < ant.solution.cost):
+				print("Updating BSSF to " + str(ant.solution.cost))
+				self.bssf = ant.solution
+
 
 class Ant:
 	def __init__( self, city, cities_to_visit, route_average, optimal_pherimone_count, pherimone_map ):
@@ -49,17 +62,17 @@ class Ant:
 
 	def pick_route( self ):
 		total_pherimone_chance = 0
-		for value in self.pherimone_map[self.current_city._index]:
-			total_pherimone_chance += value
+		for city in self.cities_to_visit:
+			total_pherimone_chance += self.pherimone_map[self.current_city._index][city._index].path_weight
 
 		random_num = random.randint(0, total_pherimone_chance)
 
 		chosen_route_index = 0
-		for index in range(self.pherimone_map[self.current_city._index]):
-			random_num -= self.pherimone_map[self.current_city._index][index]
+		for city in self.cities_to_visit:
+			random_num -= self.pherimone_map[self.current_city._index][city._index].path_weight
 
 			if (random_num <= 0):
-				chosen_route_index = index
+				chosen_route_index = city._index
 				break
 
 		self.route.append(self.current_city)
@@ -76,32 +89,37 @@ class Ant:
 					break
 
 	def check_solution( self ):
-		#TODO: check the solution
+		self.solution = TSPSolution(self.route)
+
+		if self.solution.cost == np.inf:
+			# Didn't find a valid route
+			self.action = self.finish
+		else:
+			print("Found valid solution with cost " + str(self.solution.cost))
+			self.action = self.calculate_pherimone
 		
 
-		self.action = self.calculate_pherimone
-		pass
-
 	def calculate_pherimone( self ):
+		# We can definately play with this
+		self.pherimone = self.route_average / self.solution.cost
 
+		self.backtrack_route = list(self.route)
 		self.action = self.backtrack
-		pass
 
 	def backtrack( self ):
-		for city in self.route:
-			self.action = self.drop_pherimone
+		for city in self.backtrack_route:
+			self.drop_pherimone(city)
 
-		if not self.route:
-			self.action = self.finish
-		pass
+		
+		self.action = self.finish
 
-	def drop_pherimone( self ):
-		#TODO: update the pherimone map
-		#TODO: remove the current city from our route
-		pass
+	def drop_pherimone( self, to_city ):
+		self.pherimone_map[self.current_city._index][to_city._index].path_weight += self.pherimone
+		self.backtrack_route.remove(self.current_city)
+		self.current_city = to_city
 
 	def finish( self ):
-		#TODO: signal to delete ant
+		# signals the ant is done
 		pass
 
 class Edge:
