@@ -28,7 +28,7 @@ class Colony:
 			self.ants.append(Ant(self.start_city_index, self.cities, self.start_city_index, self.decent_route_average, self.optimal_route_pherimone_count))
 		iterrations = 0
 		while self.ants:
-			if iterrations > 2 * len(self.pherimone_map):
+			if iterrations > 4 * len(self.pherimone_map):
 				print("Error! Too many ant iterrations!")
 				self.ants = []
 				break
