@@ -11,18 +11,23 @@ import time
 
 class Colony:
 	def __init__(  self, cities, pherimone_map, start_city ):
-		self.num_ants = 10
+		self.num_ants = 1
 		self.cities = cities
 		self.ants = []
 		self.max_pherimone_per_ant = 3
 		self.pherimone_map = pherimone_map
 		self.start_city = start_city
+		print("Start City = " + str(start_city))
 		#Play with this. This is what we give each ant to compare with to see if their route is worth marking
 		self.decent_route_average = len(self.pherimone_map) * 100
 		#Play with this. This is what we give each ant as a flag for the optimal route to quit iterations and return a final solution
 		self.optimal_route_pherimone_count = (self.num_ants / 2) * self.max_pherimone_per_ant 
 		self.final_tour = []
 		self.bssf = None
+
+		cities = list(cities)
+		cities.remove(self.start_city)
+		self.cities_to_visit = cities
 
 	def release_ants( self ):
 		ants = []
@@ -44,8 +49,9 @@ class Colony:
 		return
 
 	def findBSSF(self):
+		# print("entering findBSSF")
 		for ant in self.ants:
-			if (self.bssf == None or self.bssf.cost < ant.solution.cost):
+			if (self.bssf == None or self.bssf.cost > ant.solution.cost):
 				print("Updating BSSF to " + str(ant.solution.cost))
 				self.bssf = ant.solution
 
@@ -65,7 +71,7 @@ class Ant:
 		for city in self.cities_to_visit:
 			total_pherimone_chance += self.pherimone_map[self.current_city._index][city._index].path_weight
 
-		random_num = random.randint(0, total_pherimone_chance)
+		random_num = random.uniform(0, total_pherimone_chance)
 
 		chosen_route_index = 0
 		for city in self.cities_to_visit:
@@ -84,6 +90,7 @@ class Ant:
 			# There is still a city to find
 			for city in self.cities_to_visit:
 				if city._index == chosen_route_index:
+					print("Next City is " + str(city))
 					self.current_city = city
 					self.cities_to_visit.remove(city)
 					break
@@ -95,7 +102,7 @@ class Ant:
 			# Didn't find a valid route
 			self.action = self.finish
 		else:
-			print("Found valid solution with cost " + str(self.solution.cost))
+			# print("Found valid solution with cost " + str(self.solution.cost))
 			self.action = self.calculate_pherimone
 		
 
