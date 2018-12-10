@@ -210,7 +210,7 @@ class TSPSolver:
 		#Initialize the colony: Time - O(k), Space O(k)
 		colony = Colony(cities, pherimone_map, starting_city)
 
-		num_of_iterations = 1
+		num_of_iterations = 100
 		while num_of_iterations > 0 and time.time()-start_time < time_allowance:
 			colony.release_ants()
 			colony.findBSSF()
@@ -223,7 +223,7 @@ class TSPSolver:
 		end_time = time.time()
 		results['cost'] = bssf.cost
 		results['time'] = end_time - start_time
-		results['count'] = count
+		results['count'] = count+1
 		results['soln'] = bssf
 		results['max'] = None
 		results['total'] = None
