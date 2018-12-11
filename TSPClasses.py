@@ -23,6 +23,7 @@ class Colony:
 		self.optimal_route_pherimone_count = (self.num_ants / 2) * self.max_pherimone_per_ant 
 		self.final_tour = []
 		self.bssf = None
+		self.count = 0
 
 		cities = list(cities)
 		cities.remove(self.start_city)
@@ -30,27 +31,44 @@ class Colony:
 
 	def release_ants( self ):
 		ants = []
+		pherimone_ants = []
 		for i in range(self.num_ants):
 			ants.append(Ant(self.start_city, self.cities_to_visit, self.decent_route_average, self.optimal_route_pherimone_count, self.pherimone_map))
-		iterrations = 0
 		while ants:
-			# if iterrations > 4 * len(self.pherimone_map):
-			# 	print("Error! Too many ant iterrations!")
-			# 	self.ants = []
-			# 	break
-			# iterrations += 1
 			for ant in ants:
+				if (ant.action == None):
+					ants.remove(ant)
+					pherimone_ants.append(ant)
+				elif (ant.action == ant.finish):
+					# ant didn't find a valid route, so it should not backtrack
+					ants.remove(ant)
+					self.ants.append(ant)
+				else:
+					ant.action()
+
+		for ant in pherimone_ants:
+			ant.action = ant.backtrack
+
+		self.dampen_pherimones()
+
+		while pherimone_ants:
+			for ant in pherimone_ants:
 				if (ant.action != ant.finish):
 					ant.action()
 				else:
-					ants.remove(ant)
+					pherimone_ants.remove(ant)
 					self.ants.append(ant)
 		return
+
+	def dampen_pherimones( self ):
+		for row in self.pherimone_map:
+			for edge in row:
+				edge.path_weight = edge.path_weight / 2
 
 	def findBSSF(self):
 		for ant in self.ants:
 			if (self.bssf == None or self.bssf.cost > ant.solution.cost):
-				print("Updating BSSF to " + str(ant.solution.cost))
+				self.count += 1
 				self.bssf = ant.solution
 
 
@@ -108,7 +126,7 @@ class Ant:
 		self.pherimone = self.route_average / self.solution.cost
 
 		self.backtrack_route = list(self.route)
-		self.action = self.backtrack
+		self.action = None
 
 	def backtrack( self ):
 		for city in self.backtrack_route:
