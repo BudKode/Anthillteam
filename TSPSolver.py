@@ -254,7 +254,9 @@ class TSPSolver:
         cities = list(self._scenario.getCities())
         ncities = len(cities)
         count = 0
-        bssf = None
+        matrix = self.generateMatrix(cities)
+        bssfRoute = self.initRoute(cities, matrix)
+        bssf = TSPSolution(bssfRoute)
         start_time = time.time()
 
         starting_city = cities[0]
@@ -268,6 +270,8 @@ class TSPSolver:
 
         #Initialize the colony: Time - O(k), Space O(k)
         colony = Colony(cities, pherimone_map, starting_city)
+        colony.bssf = bssf
+        colony.decent_route_average = bssf.cost
 
         num_of_iterations = 100
         while num_of_iterations > 0 and time.time()-start_time < time_allowance:
