@@ -87,8 +87,7 @@ class TSPSolver:
         results = {}
         cities = self._scenario.getCities()
         numCities = len(cities)
-        matrix = self.generateMatrix(cities)
-        bssfRoute = self.initRoute(cities, matrix)
+        bssfRoute = self.initRoute(cities)
         bssf = TSPSolution(bssfRoute)
         results['cost'] = bssf._costOfRoute()
         results['time'] = time.time() - startTime
@@ -96,17 +95,14 @@ class TSPSolver:
         results['soln'] = bssf
         return results
 
-    def generateMatrix(self, cities):
+    # set up to recursively pick a valid route through all cities by picking the nearest neighbor
+    def initRoute(self, cities):
         matrix = np.zeros((len(cities), len(cities)))
         for i in range(len(cities)):
             cityRow = cities[i]
             for j in range(len(cities)):
                 cityCol = cities[j]
                 matrix[i, j] = cityRow.costTo(cityCol)
-        return matrix
-
-    # set up to recursively pick a valid route through all cities by picking the nearest neighbor
-    def initRoute(self, cities, matrix):
         route = [cities[0]]
         return self.initRouteRec(cities, matrix, route, 0)
 
@@ -254,9 +250,7 @@ class TSPSolver:
         cities = list(self._scenario.getCities())
         ncities = len(cities)
         count = 0
-        matrix = self.generateMatrix(cities)
-        bssfRoute = self.initRoute(cities, matrix)
-        bssf = TSPSolution(bssfRoute)
+        bssf = TSPSolution(self.initRoute(cities))
         start_time = time.time()
 
         starting_city = cities[0]

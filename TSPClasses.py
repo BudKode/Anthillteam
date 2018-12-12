@@ -123,21 +123,7 @@ class Ant:
 
     def calculate_pherimone(self):
         # We can definately play with this
-        # self.pherimone = self.route_average**4 / self.solution.cost**.5
-
-        # map value from [mapa, mapb] to [mapc, mapd]
-        mapa = .5
-        mapb = 1
-        mapc = 1000
-        mapd = 1000000
-        x = self.route_average / self.solution.cost
-
-        y = (x - mapa)/(mapb - mapa) * (mapd - mapc) + mapc
-
-        # clamp min value
-        if y < mapc:
-            y = mapc
-        self.pherimone = y
+        self.pherimone = self.route_average / self.solution.cost
 
         self.backtrack_route = list(self.route)
         self.action = None
@@ -149,7 +135,7 @@ class Ant:
         self.action = self.finish
 
     def drop_pherimone(self, to_city):
-        self.pherimone_map[self.current_city._index][to_city._index].path_weight += self.pherimone
+        self.pherimone_map[self.current_city._index][to_city._index].path_weight += self.pherimone / (self.pherimone_map[self.current_city._index][to_city._index].path_length + 1)
         self.backtrack_route.remove(self.current_city)
         self.current_city = to_city
 
